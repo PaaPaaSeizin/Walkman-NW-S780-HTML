@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walkman S780 Final Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Yu Gothic", sans-serif;
+            overflow: hidden;
+        }
+
+        #walkman-container {
+            width: 247px;
+            height: 541px;
+            position: relative;
+            background-color: #000;
+        }
+
+        /* スクリーンエリア: 全画面スタイル (L:0px, T:-5px, W:243px, H:546px) */
+        #screen-area {
+            position: absolute;
+            top: -5px;
+            left: 0px;
+            width: 243px;
+            height: 546px;
+            background-color: #000;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .screen-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-size: 100% 100%;
+            display: none;
+        }
+
+        #layer-menu { background-image: url('menu_screen.png'); display: block; }
+        #layer-player {
+            background-color: #000;
+            background-image: url('player_screen.png');
+            background-position: bottom;
+            background-repeat: no-repeat;
+        }
+
+        /* アルバムアート (L:30px, T:82px) */
+        #album-art {
+            position: absolute;
+            top: 83px;
+            left: 30px;
+            width: 185px; /* デバッグデータで0pxだったため、一般的な正方形サイズに調整 */
+            height: 185px;
+            object-fit: cover;
+            background: #222;
+        }
+
+        /* テキストエリア (L:55px, T:264px) */
+        .info-area {
+            position: absolute;
+            top: 266px;
+            left: 55px;
+            width: 150px;
+            color: white;
+            pointer-events: none;
+        }
+
+        .track-info {
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: -1px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #track-title { font-weight: bold; font-size: 13px; }
+        #track-artist, #track-album { color: #ccc; }
+
+        /* 本体画像（最前面） */
+        #body-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('body.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* 操作ボタン (デバッグデータに基づく座標) */
+        .clickable-hotspot {
+            position: absolute;
+            border: none;
+            cursor: pointer;
+            z-index: 110;
+            background-color: transparent;
+        }
+
+        #spot-back   { top: 370px; left: 30px;  width: 52px; height: 51px; }
+        #spot-option { top: 368px; left: 162px; width: 53px; height: 52px; }
+        #spot-play   { top: 410px; left: 93px;  width: 62px; height: 63px; border-radius: 50%; }
+        #spot-up     { top: 372px; left: 93px;  width: 62px; height: 40px; }
+        #spot-down   { top: 477px; left: 95px;  width: 60px; height: 40px; }
+        #spot-left   { top: 425px; left: 49px;  width: 44px; height: 40px; }
+        #spot-right  { top: 425px; left: 151px; width: 45px; height: 40px; }
+
+        #hidden-file { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="walkman-container">
+        <!-- 液晶画面 -->
+        <div id="screen-area">
+            <div id="layer-menu" class="screen-layer"></div>
+            <div id="layer-player" class="screen-layer">
+                <img id="album-art" src="" alt="">
+                <div class="info-area">
+                    <div id="track-title" class="track-info">Music Player</div>
+                    <div id="track-artist" class="track-info">アーティスト</div>
+                    <div id="track-album" class="track-info">アルバム</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 本体外装 -->
+        <div id="body-overlay"></div>
+
+        <!-- ボタン -->
+        <div id="spot-back" class="clickable-hotspot"></div>
+        <div id="spot-option" class="clickable-hotspot"></div>
+        <div id="spot-play" class="clickable-hotspot"></div>
+        <div id="spot-up" class="clickable-hotspot"></div>
+        <div id="spot-down" class="clickable-hotspot"></div>
+        <div id="spot-left" class="clickable-hotspot"></div>
+        <div id="spot-right" class="clickable-hotspot"></div>
+    </div>
+
+    <input type="file" id="hidden-file" webkitdirectory directory>
+
+    <script>
+        const audio = new Audio();
+        let playlist = [];
+        let currentIndex = 0;
+
+        const layerMenu = document.getElementById('layer-menu');
+        const layerPlayer = document.getElementById('layer-player');
+
+        function showPlayer() { layerMenu.style.display = 'none'; layerPlayer.style.display = 'block'; }
+        function showMenu() { layerMenu.style.display = 'block'; layerPlayer.style.display = 'none'; }
+
+        function playTrack(index) {
+            if (!playlist[index]) return;
+            const file = playlist[index];
+            audio.src = URL.createObjectURL(file);
+            
+            // 初期表示
+            document.getElementById('track-title').innerText = file.name;
+            document.getElementById('track-artist').innerText = "Unknown";
+            document.getElementById('track-album').innerText = "Unknown";
+            document.getElementById('album-art').src = "";
+
+            jsmediatags.read(file, {
+                onSuccess: (tag) => {
+                    const t = tag.tags;
+                    document.getElementById('track-title').innerText = t.title || file.name;
+                    document.getElementById('track-artist').innerText = t.artist || "Unknown";
+                    document.getElementById('track-album').innerText = t.album || "Unknown";
+                    if (t.picture) {
+                        let base64String = "";
+                        for (let i = 0; i < t.picture.data.length; i++) base64String += String.fromCharCode(t.picture.data[i]);
+                        document.getElementById('album-art').src = "data:" + t.picture.format + ";base64," + window.btoa(base64String);
+                    }
+                }
+            });
+            audio.play();
+        }
+
+        // --- 操作系 ---
+        document.getElementById('spot-play').addEventListener('click', () => {
+            if (playlist.length === 0) return document.getElementById('hidden-file').click();
+            if (layerMenu.style.display !== 'none') return showPlayer();
+            audio.paused ? audio.play() : audio.pause();
+        });
+
+        document.getElementById('spot-back').addEventListener('click', showMenu);
+
+// OPTIONボタンを押した時の処理
+document.getElementById('spot-option').addEventListener('click', () => {
+    alert("NoSony NoLife\n制作:Paa(Twi @_TOUKETUSINAIDE)");
+});
+
+        document.getElementById('spot-left').addEventListener('click', () => {
+            if (layerPlayer.style.display === 'block') {
+                currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+                playTrack(currentIndex);
+            }
+        });
+
+        document.getElementById('spot-right').addEventListener('click', () => {
+            if (layerPlayer.style.display === 'block') {
+                currentIndex = (currentIndex + 1) % playlist.length;
+                playTrack(currentIndex);
+            }
+        });
+
+        document.getElementById('hidden-file').addEventListener('change', (e) => {
+            playlist = Array.from(e.target.files).filter(f => f.name.match(/\.(mp3|m4a|aac)$/i));
+            if (playlist.length > 0) { currentIndex = 0; showPlayer(); playTrack(0); }
+        });
+
+        audio.onended = () => {
+            currentIndex = (currentIndex + 1) % playlist.length;
+            playTrack(currentIndex);
+        };
+    </script>
+</body>
+</html>
