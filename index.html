@@ -32,6 +32,11 @@
 
   /* 全体のサイズ調整 */
   --clock-size: 1.0;
+
+  /* ─── ここから下を付け足しました ─── */
+  --total-scale: 1.20;   /* 全体の大きさ（小さすぎたので1.20＝120%に拡大しています。1.15〜1.3などお好みで） */
+  --move-x: 0px;         /* 左右の位置調整（基本は0pxでOKです） */
+  --move-y: 25px;        /* 上下の位置調整（上すぎるのを直すために25pxほど下に下げています） */
 }
 
 #blend-layer{
@@ -68,9 +73,9 @@ body {
 /* 16:9の画面いっぱいに広がるコンテナ */
 .screen-container {
     width: 100vw;
-    height: 64.25vw; /* 16:9 の比率を維持 */
-    max-height: 130vh;
-    max-width: 200.78vh; 
+    height: 74.25vw; /* 16:9 の比率を維持 */
+    max-height: 100vh;
+    max-width: 177.78vh; 
     display: flex;
     justify-content: center;
     align-items: center;
