@@ -35,8 +35,8 @@
 
   /* ─── ここから下を付け足しました ─── */
   --total-scale: 1.20;   /* 全体の大きさ（小さすぎたので1.20＝120%に拡大しています。1.15〜1.3などお好みで） */
-  --move-x: 0px;         /* 左右の位置調整（基本は0pxでOKです） */
-  --move-y: 25px;        /* 上下の位置調整（上すぎるのを直すために25pxほど下に下げています） */
+  --move-x: 0px;          /* 左右の位置調整（基本は0pxでOKです） */
+  --move-y: 25px;         /* 上下の位置調整（上すぎるのを直すために25pxほど下に下げています） */
 }
 
 #blend-layer{
@@ -90,6 +90,10 @@ body {
     justify-content: center;
     width: 96%; 
     gap: 3vw;   /* 1本化に伴い、バランスを取るため少し広げました */
+    
+    /* ───【修正】ここで素晴らしい設定を適用しました ─── */
+    transform: translate(var(--move-x), var(--move-y)) scale(var(--total-scale));
+    transform-origin: center center;
 }
 
 /* 時計全体のラップ */
