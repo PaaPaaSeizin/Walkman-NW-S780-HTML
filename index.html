@@ -2,7 +2,19 @@
 <html>
 <head>
 <meta charset="utf-8"/>
+<!-- 【重要】スマートフォンの画面に最適化させる基本設定 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- ───【追加】iPhone（iOS）用のアプリ化・ホーム画面追加設定 ─── -->
+<!-- ホーム画面から起動した際に、Safariのブラウザ枠（アドレスバーや下部メニュー）を非表示にしてフルスクリーンにする -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<!-- フルスクリーン時のステータスバー（電波やバッテリーの表示部分）の背景色を黒にする -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- アプリとしてのタイトル（ホーム画面のアイコン下に表示される名前） -->
+<meta name="apple-mobile-web-app-title" content="パタパタ時計">
+<!-- ホーム画面に配置されるアイコン画像（高解像度用の180x180ピクセル推奨） -->
+<link rel="apple-touch-icon" href="https://via.placeholder.com/180">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
@@ -72,7 +84,7 @@ body {
     align-items: center;
     justify-content: center;
     width: 96%; 
-    gap: 2vw;   /* iPhone 6s用に隙間を少しタイトに調整 */
+    gap: 3vw;   /* 1本化に伴い、バランスを取るため少し広げました */
 }
 
 /* 時計全体のラップ */
@@ -93,28 +105,22 @@ body {
     box-shadow: 0 0 20px rgba(255,255,255,0.05);
 }
 
-/* 天気ウィジェットを左右に並べるコンテナ */
+/* 天気ウィジェットを配置するコンテナ */
 .weather-row-container {
     display: flex;
     flex-direction: row; 
     justify-content: center;
-    align-items: stretch; /* 高さを揃えて綺麗に見せる */
+    align-items: center; 
     width: 100%;
-    gap: 2vw; 
 }
 
-/* 【修正】1つ目のウィジェット（左）がでかくなりすぎないように制限 */
+/* 【修正】週間予報ウィジェットが横いっぱいに綺麗に広がるように幅を調整 */
 .widget-left {
-    width: 25vw;        /* 32vw から 25vw に縮小 */
-    max-width: 130px;   /* iPhone 6sの横幅で巨大化するのを物理的にストップ */
+    width: 90vw;        
+    max-width: 600px;   /* 大きな画面で見たときに広がりすぎないストッパー */
     display: flex;
-    align-items: center; /* 縦方向の中央寄せ */
-}
-
-/* 【修正】2つ目のウィジェット（右）のレスポンシブ幅 */
-.widget-right {
-    flex: 1; 
-    max-width: 65vw;    /* 左が縮んだ分、右の週間予報が広く使えるように調整 */
+    justify-content: center;
+    align-items: center; 
 }
 
 .separator{
@@ -402,18 +408,11 @@ body {
             </div>
         </div>
 
-        <!-- 天気ウィジェットエリア（左右に整列） -->
+        <!-- 天気ウィジェットエリア（週間予報を1本化） -->
         <div class="weather-row-container">
             
-            <!-- 【左側】サイズをコンパクトに抑え込んだ枠 -->
             <div class="widget-left">
-                <div id="ww_49b870d903f42" v='1.3' loc='id' a='{"t":"horizontal","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_49b870d903f42_u" target="_blank">東京 天気 10日間</a></div>
-                <script async src="https://app3.weatherwidget.org/js/?id=ww_49b870d903f42"></script>
-            </div>
-
-            <!-- 【右側】余った幅いっぱいに週間予報を広げる枠 -->
-            <div class="widget-right">
-                <div id="ww_4bab25dd80486" v='1.3' loc='id' a='{"t":"responsive","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722","el_nme":3,"el_cwi":3,"el_ctm":3,"cl_odd":"#FFFFFF17"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_4bab25dd80486_u" target="_blank">東京 天気 10日間</a></div>
+                <div id="ww_4bab25dd80486" v='1.3' loc='id' a='{"t":"responsive","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722","cl_odd":"#FFFFFF17"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_4bab25dd80486_u" target="_blank">東京 天気 10日間</a></div>
                 <script async src="https://app3.weatherwidget.org/js/?id=ww_4bab25dd80486"></script>
             </div>
 
