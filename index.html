@@ -35,8 +35,12 @@
   --total-scale: 1.55;   /* 👈 ここで画面いっぱいにズームさせます（1.4〜1.7でお好みに調整してください） */
   --move-x: 0px;        
   --move-y: 0px;         /* 👈 上下位置の微調整用（まずは0pxでど真ん中に来ます） */
-}
 
+  /* ───【追加】縦向きのまま無理やり横画面にする魔法の3行 ─── */
+  @media (orientation: portrait) {
+    .screen-container { transform: rotate(90deg); }
+}
+  
 #blend-layer{
     display: var(--blend-layer);
     z-index: 100;
@@ -125,7 +129,7 @@ body {
 
 /* 週間予報ウィジェットの横幅をすっきり最適化 */
 .widget-left {
-    width: 85vw;        
+    width: 55vw;        
     max-width: 300px;   
     display: flex;
     justify-content: center;
