@@ -65,14 +65,14 @@ body {
     box-sizing: border-box;
 }
 
-/* ──【追加】時計と天気エリアを縦に並べるコンテナ ── */
+/* 時計と天気エリアを縦に並べるコンテナ */
 .main-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 95%; /* 画面幅いっぱいに使うよう広めに確保 */
-    gap: 3vw;   /* 時計と天気エリアの間の隙間 */
+    width: 96%; 
+    gap: 2vw;   /* iPhone 6s用に隙間を少しタイトに調整 */
 }
 
 /* 時計全体のラップ */
@@ -93,24 +93,28 @@ body {
     box-shadow: 0 0 20px rgba(255,255,255,0.05);
 }
 
-/* ──【追加】天気ウィジェットを左右に並べるコンテナ ── */
+/* 天気ウィジェットを左右に並べるコンテナ */
 .weather-row-container {
     display: flex;
-    flex-direction: row; /* 左右に並べる */
+    flex-direction: row; 
     justify-content: center;
-    align-items: flex-start; /* 上揃え */
+    align-items: stretch; /* 高さを揃えて綺麗に見せる */
     width: 100%;
-    gap: 3vw; /* 左ウィジェットと右ウィジェットの間の隙間 */
+    gap: 2vw; 
 }
 
-/* ──【追加】各ウィジェットの横幅を固定・制限する枠 ── */
+/* 【修正】1つ目のウィジェット（左）がでかくなりすぎないように制限 */
 .widget-left {
-    width: 32vw; /* 左側のコンパクトな横型ウィジェットに合わせた幅 */
+    width: 25vw;        /* 32vw から 25vw に縮小 */
+    max-width: 130px;   /* iPhone 6sの横幅で巨大化するのを物理的にストップ */
+    display: flex;
+    align-items: center; /* 縦方向の中央寄せ */
 }
 
+/* 【修正】2つ目のウィジェット（右）のレスポンシブ幅 */
 .widget-right {
-    flex: 1; /* 右側のレスポンシブな週間予報を広げる */
-    max-width: 55vw; /* はみ出し防止の最大幅制限 */
+    flex: 1; 
+    max-width: 65vw;    /* 左が縮んだ分、右の週間予報が広く使えるように調整 */
 }
 
 .separator{
@@ -341,7 +345,6 @@ body {
 <body>
 
 <div class="screen-container">
-    <!-- 時計と天気ウィジェット全体を包むコンテナ -->
     <div class="main-content">
         
         <!-- パタパタ時計 -->
@@ -402,13 +405,13 @@ body {
         <!-- 天気ウィジェットエリア（左右に整列） -->
         <div class="weather-row-container">
             
-            <!-- 【左側】最初のウィジェット (horizontal) -->
+            <!-- 【左側】サイズをコンパクトに抑え込んだ枠 -->
             <div class="widget-left">
                 <div id="ww_49b870d903f42" v='1.3' loc='id' a='{"t":"horizontal","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_49b870d903f42_u" target="_blank">東京 天気 10日間</a></div>
                 <script async src="https://app3.weatherwidget.org/js/?id=ww_49b870d903f42"></script>
             </div>
 
-            <!-- 【右側】2つ目のウィジェット (responsive) -->
+            <!-- 【右側】余った幅いっぱいに週間予報を広げる枠 -->
             <div class="widget-right">
                 <div id="ww_4bab25dd80486" v='1.3' loc='id' a='{"t":"responsive","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722","el_nme":3,"el_cwi":3,"el_ctm":3,"cl_odd":"#FFFFFF17"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_4bab25dd80486_u" target="_blank">東京 天気 10日間</a></div>
                 <script async src="https://app3.weatherwidget.org/js/?id=ww_4bab25dd80486"></script>
