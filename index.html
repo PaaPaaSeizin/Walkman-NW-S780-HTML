@@ -33,10 +33,34 @@
   /* 全体のサイズ調整 */
   --clock-size: 1.0;
 
-  /* ─── ここから下を付け足しました ─── */
-  --total-scale: 1.20;   /* 全体の大きさ（小さすぎたので1.20＝120%に拡大しています。1.15〜1.3などお好みで） */
-  --move-x: 0px;          /* 左右の位置調整（基本は0pxでOKです） */
-  --move-y: 25px;         /* 上下の位置調整（上すぎるのを直すために25pxほど下に下げています） */
+  /* 全体の大きさ */
+  --total-scale: 1.20;
+  
+  /* 位置調整（通常時 / 横向き） */
+  --move-x: 0px;
+  --move-y: 25px;
+  
+  /* ───【追加】縦向きのときの回転設定 ─── */
+  --orientation-rotate: 0deg;
+}
+
+/* iPhone/スマホが縦向き（画面の高さが幅より長い）のときだけ適用する設定 */
+@media (orientation: portrait) {
+  :root {
+    --orientation-rotate: 90deg; /* 画面を90度回転 */
+    
+    /* 縦回転するとXとYの軸が入れ替わるため、位置調整の方向を自動補正します */
+    --move-x: -25px; /* 元の --move-y (25px) 分、回転後に下へ下げるための調整 */
+    --move-y: 0px;
+  }
+  
+  /* 縦向き時は基準となる仮想画面の縦横比を逆転させてフィットさせます */
+  .screen-container {
+    width: 100vh !important;
+    height: 74.25vh !important;
+    max-height: 100vw !important;
+    max-width: 177.78vw !important;
+  }
 }
 
 #blend-layer{
@@ -91,8 +115,8 @@ body {
     width: 96%; 
     gap: 3vw;   /* 1本化に伴い、バランスを取るため少し広げました */
     
-    /* ───【修正】ここで素晴らしい設定を適用しました ─── */
-    transform: translate(var(--move-x), var(--move-y)) scale(var(--total-scale));
+    /* ───【修正】縦向き時の回転（rotate）を追加しました ─── */
+    transform: rotate(var(--orientation-rotate)) translate(var(--move-x), var(--move-y)) scale(var(--total-scale));
     transform-origin: center center;
 }
 
