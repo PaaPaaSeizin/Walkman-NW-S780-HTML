@@ -1,227 +1,513 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman S780 HTML</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
-    <style>
-        body {
-            background-color: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Yu Gothic", sans-serif;
-            overflow: hidden;
-        }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght=500&display=swap" rel="stylesheet">
+<style>
 
-        #walkman-container {
-            width: 247px;
-            height: 541px;
-            position: relative;
-            background-color: #000;
-        }
+/* ------------------ */
+/* ↓↓↓↓ カスタマイズ設定 ここから ↓↓↓↓ */
+/* Customized settings from here */
+:root {
+  /* ↓数字の色を指定します（例: red, #CCD5FF */
+  /* Specifies the color of the numbers (ex. aqua, #CCD5FF */
+  --clock-txt-color: #FFF;
 
-        /* スクリーンエリア: 全画面スタイル (L:0px, T:-5px, W:243px, H:546px) */
-        #screen-area {
-            position: absolute;
-            top: -5px;
-            left: 0px;
-            width: 244px;
-            height: 546px;
-            background-color: #000;
-            overflow: hidden;
-            z-index: 10;
-        }
+  /* ↓背景の角丸四角の塗り色を指定します（例: #1A1F78, transparent */
+  /* Specifies the fill color of the rounded squares in the background */
+  --clock-wraper-bg: rgba(65, 65, 65, 0.86);
 
-        .screen-layer {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-size: 100% 100%;
-            display: none;
-        }
+  /* ↓「none」から「block」に変更することで、全体的な配色を角丸四角の塗り色で統一します */
+  /* By changing from "none" to "block", the overall color scheme is unified with the rounded square fill color. */
+  --blend-layer: none;
 
-        #layer-menu { background-image: url('menu_screen.png'); display: block; }
-        #layer-player {
-            background-color: #000;
-            background-image: url('player_screen.png');
-            background-position: bottom;
-            background-repeat: no-repeat;
-        }
+  /* ↓背景の角丸四角の塗りにグラデーションを指定したい場合に使用します（例: linear-gradient(to top, #9795f0 0%, #fbc8d4 100%) */
+  /* Use this when you want to specify a gradation for filling a square with rounded corners in the background. */
+  --clock-wraper-img: none;
 
-        /* アルバムアート (L:30px, T:82px) */
-        #album-art {
-            position: absolute;
-            top: 83px;
-            left: 30px;
-            width: 185px; /* デバッグデータで0pxだったため、一般的な正方形サイズに調整 */
-            height: 185px;
-            object-fit: cover;
-            background: #222;
-        }
+  /* ↓サイズを1.0を基準に変更します。OBSのブラウザサイズを修正する必要があります（例: 0.92, 1.2, 2.0 */
+  /* Resize based on 1.0. You need to fix the browser size of obs. */
+  --clock-size: 1.2; /* iPhone 6sで見やすいように少しだけ大きくしました(1.0から1.2へ変更) */
+}
+/* Customized settings up to here */
+/* ↑↑↑↑ カスタマイズ設定 ここまで ↑↑↑↑ */
+/* ------------------ */
 
-        /* テキストエリア (L:55px, T:264px) */
-        .info-area {
-            position: absolute;
-            top: 266px;
-            left: 55px;
-            width: 150px;
-            color: white;
-            pointer-events: none;
-        }
 
-        .track-info {
-            font-size: 11px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: -1px;
-            text-shadow: 1px 1px 2px #000;
-        }
-        #track-title { font-weight: bold; font-size: 13px; }
-        #track-artist, #track-album { color: #ccc; }
+#blend-layer{
+    display: var(--blend-layer);
+    z-index: 100;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--clock-wraper-bg);
+    mix-blend-mode: color-dodge;
+    opacity: 0.54;
+}
+    
+html,body,div,p,span,time{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+body{
+    background-color: #000000; /* 背景を完全な黒に変更 */
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer; /* タップできることを示すカーソル */
+}
+.timewrap{
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 102px;
+    background-color: var(--clock-wraper-bg);
+    background-image: var(--clock-wraper-img);
+    border-radius: 10px;
+    margin: 0 auto;
+    padding: 0 9px;
+    overflow: hidden;
+    zoom: var(--clock-size);
+}
 
-        /* 本体画像（最前面） */
-        #body-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: url('body.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 100;
-            pointer-events: none;
-        }
+.separator{
+    width: 16px;
+}
+.separator.short{
+    width: 4px;
+}
 
-        /* 操作ボタン (デバッグデータに基づく座標) */
-        .clickable-hotspot {
-            position: absolute;
-            border: none;
-            cursor: pointer;
-            z-index: 110;
-            background-color: transparent;
-        }
+.clock_wrap{
+    box-sizing: border-box;
+    position: relative;
+    width: 59px;
+    height: 82px;
+    background-color: #090909;
+    border: 5px solid #333;
+    border-radius: 10px;
+    margin: 0 1px;
+}
 
-        #spot-back   { top: 370px; left: 30px;  width: 52px; height: 51px; }
-        #spot-option { top: 368px; left: 162px; width: 53px; height: 52px; }
-        #spot-play   { top: 410px; left: 93px;  width: 62px; height: 63px; border-radius: 50%; }
-        #spot-up     { top: 372px; left: 93px;  width: 62px; height: 40px; }
-        #spot-down   { top: 477px; left: 95px;  width: 60px; height: 40px; }
-        #spot-left   { top: 425px; left: 49px;  width: 44px; height: 40px; }
-        #spot-right  { top: 425px; left: 151px; width: 45px; height: 40px; }
+.clock_wrap.double-digit{
+    width: 91px;
+    text-indent: 3.5px;
+    letter-spacing: 4px;
+}
 
-        #hidden-file { display: none; }
-    </style>
+.clock_wrap > div{
+    position: absolute;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    line-height: 0;
+    box-shadow: 0 2px 3px rgba(60, 60, 60, 0.75);
+    
+
+    transition: background-color .21s ease-out;
+}
+
+.clock_wrap > div > span{
+    color: var(--clock-txt-color);
+}
+
+.clock_wrap::after,
+.clock_wrap::before{
+    content: '';
+    position: absolute;
+    z-index: 5;
+    width: 2px;
+    height: 14px;
+    top: calc(50% - 7px);
+    background-color: #b4b4b4;
+}
+.clock_wrap::after{
+    left: -2px;
+}
+.clock_wrap::before{
+    right: -2px;
+}
+
+
+.top{
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+.bottom{
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.top.over{
+    background-color: #484848;
+    color: #FFF;
+    height: calc(50% - 1px);
+    bottom: calc(50% + 1px);
+    z-index: 3;
+}
+.top.under{
+    background-color: #313131;
+    color: #FFF;
+    height: calc(50% - 1px);
+    bottom: calc(50% + 1px);
+    z-index: 2;
+}
+.bottom.over{
+    background-color: #484848;
+    color: #FFF;
+    height: 0;
+    top: calc(50% + 1px);
+    z-index: 5;
+}
+.bottom.under{
+    background-color: #484848;
+    color: #FFF;
+    height: calc(50% - 1px);
+    top: calc(50% + 1px);
+    z-index: 4;
+}
+.bottom.shadow{
+    transition-delay: 0.23s;
+    background-color: rgb(36, 36, 36);
+}
+.top span{
+    transform: translateY(16.0px);    
+}
+.bottom span{
+    transform: translateY(-20.5px);    
+}
+
+
+@keyframes motionTop{
+    0%{
+        height: calc(50% - 1.5px);
+    }
+    100%{
+        height: 0;
+    }
+}
+.motion_top{
+    animation: motionTop .24s ease-in;
+    animation-fill-mode: both;
+}
+@keyframes motionBottom{
+    0%{
+        height: 0;
+    }
+    100%{
+        height: calc(50% - 1.5px);
+    }
+}
+.motion_bottom{
+    animation: motionBottom .24s ease-out .23s;
+    animation-fill-mode: both;
+}
+
+
+.date_wrap{
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 10px 0;
+}
+.date_wrap .clock_wrap{
+    width: 70px;
+    height: 38px;
+    border-radius: 8px;
+    border-width: 4px;
+}
+
+.date_wrap .clock_wrap::after,
+.date_wrap .clock_wrap::before{
+    width: 2px;
+    height: 10px;
+    top: calc(50% - 5px);
+}
+.date_wrap .clock_wrap::after{
+    left: -2px;
+}
+.date_wrap .clock_wrap::before{
+    right: -2px;
+}
+
+.date_wrap .clock_wrap .top{
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.date_wrap .clock_wrap .bottom{
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.date_wrap .clock_wrap > div{
+    font-size: 22px;
+}
+.date_wrap .clock_wrap > .top span{
+    transform: translateY(7.0px);    
+}
+.date_wrap .clock_wrap > .bottom span{
+    transform: translateY(-8.0px);    
+}
+
+.date_wrap .clock_wrap > .top.over{
+    height: calc(50% - 0.5px);
+    bottom: calc(50% + 0.5px);
+}
+.date_wrap .clock_wrap > .top.under{
+    height: calc(50% - 0.5px);
+    bottom: calc(50% + 0.5px);
+}
+.date_wrap .clock_wrap > .bottom.over{
+    height: 0;
+    top: calc(50% + 0.5px);
+}
+.date_wrap .clock_wrap > .bottom.under{
+    height: calc(50% - 0.5px);
+    top: calc(50% + 0.5px);
+}
+
+/* バッテリー表示用のCSSスタイル */
+#battery-info {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    font-size: 14px;
+    color: #666;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+
+</style>
 </head>
+    
 <body>
 
-    <div id="walkman-container">
-        <!-- 液晶画面 -->
-        <div id="screen-area">
-            <div id="layer-menu" class="screen-layer"></div>
-            <div id="layer-player" class="screen-layer">
-                <img id="album-art" src="" alt="">
-                <div class="info-area">
-                    <div id="track-title" class="track-info">Music Player</div>
-                    <div id="track-artist" class="track-info">アーティスト</div>
-                    <div id="track-album" class="track-info">アルバム</div>
-                </div>
-            </div>
+<div class="timewrap">
+
+    <div id="blend-layer"></div>
+
+    <div class="date_wrap">
+        <div class="clock_wrap">
+            <div class="DATE top over"><span>0/00</span></div>
+            <div class="DATE bottom over"><span>0/00</span></div>
+            <div class="DATE top under"><span>0/00</span></div>
+            <div class="DATE bottom under"><span>0/00</span></div>
         </div>
-
-        <!-- 本体外装 -->
-        <div id="body-overlay"></div>
-
-        <!-- ボタン -->
-        <div id="spot-back" class="clickable-hotspot"></div>
-        <div id="spot-option" class="clickable-hotspot"></div>
-        <div id="spot-play" class="clickable-hotspot"></div>
-        <div id="spot-up" class="clickable-hotspot"></div>
-        <div id="spot-down" class="clickable-hotspot"></div>
-        <div id="spot-left" class="clickable-hotspot"></div>
-        <div id="spot-right" class="clickable-hotspot"></div>
+    
+        <div class="clock_wrap">
+            <div class="WEEK top over"><span>SUN</span></div>
+            <div class="WEEK bottom over"><span>SUN</span></div>
+            <div class="WEEK top under"><span>SUN</span></div>
+            <div class="WEEK bottom under"><span>SUN</span></div>
+        </div>    
     </div>
 
-    <input type="file" id="hidden-file" webkitdirectory directory>
+    <div class="separator"></div>
 
-    <script>
-        const audio = new Audio();
-        let playlist = [];
-        let currentIndex = 0;
+    <div class="clock_wrap double-digit">
+        <div class="H0 top over"><span>00</span></div>
+        <div class="H0 bottom over"><span>00</span></div>
+        <div class="H0 top under"><span>00</span></div>
+        <div class="H0 bottom under"><span>00</span></div>
+    </div>
 
-        const layerMenu = document.getElementById('layer-menu');
-        const layerPlayer = document.getElementById('layer-player');
+    <div class="separator short"></div>
 
-        function showPlayer() { layerMenu.style.display = 'none'; layerPlayer.style.display = 'block'; }
-        function showMenu() { layerMenu.style.display = 'block'; layerPlayer.style.display = 'none'; }
+    <div class="clock_wrap double-digit">
+        <div class="M0 top over"><span>00</span></div>
+        <div class="M0 bottom over"><span>00</span></div>
+        <div class="M0 top under"><span>00</span></div>
+        <div class="M0 bottom under"><span>00</span></div>
+    </div>
 
-        function playTrack(index) {
-            if (!playlist[index]) return;
-            const file = playlist[index];
-            audio.src = URL.createObjectURL(file);
-            
-            // 初期表示
-            document.getElementById('track-title').innerText = file.name;
-            document.getElementById('track-artist').innerText = "Unknown";
-            document.getElementById('track-album').innerText = "Unknown";
-            document.getElementById('album-art').src = "";
+    <div class="separator"></div>
 
-            jsmediatags.read(file, {
-                onSuccess: (tag) => {
-                    const t = tag.tags;
-                    document.getElementById('track-title').innerText = t.title || file.name;
-                    document.getElementById('track-artist').innerText = t.artist || "Unknown";
-                    document.getElementById('track-album').innerText = t.album || "Unknown";
-                    if (t.picture) {
-                        let base64String = "";
-                        for (let i = 0; i < t.picture.data.length; i++) base64String += String.fromCharCode(t.picture.data[i]);
-                        document.getElementById('album-art').src = "data:" + t.picture.format + ";base64," + window.btoa(base64String);
-                    }
-                }
-            });
-            audio.play();
+    <div class="clock_wrap">
+        <div class="S1 top over"><span>0</span></div>
+        <div class="S1 bottom over"><span>0</span></div>
+        <div class="S1 top under"><span>0</span></div>
+        <div class="S1 bottom under"><span>0</span></div>
+    </div>
+
+    <div class="clock_wrap">
+        <div class="S2 top over"><span>0</span></div>
+        <div class="S2 bottom over"><span>0</span></div>
+        <div class="S2 top under"><span>0</span></div>
+        <div class="S2 bottom under"><span>0</span></div>
+    </div>
+
+    
+</div>
+
+<div id="battery-info">🔋 --%</div>
+
+<script>
+    function pataTimer(){
+        const d = new Date();
+
+        let H = d.getHours();
+        if(H<10) { H = '0'+H };
+        const h0 = String(H).substr(0,2);
+        
+        let m = d.getMinutes();
+        if(m<10) { m = '0'+m };
+        const m0 = String(m).substr(0,2);
+                
+        let s = d.getSeconds();
+        if(s<10) { s = '0'+s };
+        const s1 = String(s).substr(0,1);
+        const s2 = String(s).substr(1,1);
+
+        const month = d.getMonth()+1;
+        const date = d.getDate();
+        const dateStr = month + '/' + date;
+        const dayOfWeekStr = [ "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" ][d.getDay()];
+
+
+        const prevDATE = document.getElementsByClassName('DATE top under')[0].children[0].innerHTML;
+        const prevWEEK = document.getElementsByClassName('WEEK top under')[0].children[0].innerHTML;
+        if(dateStr != prevDATE){
+            pataMotion('DATE', dateStr);
+        }
+        if(dayOfWeekStr != prevWEEK){
+            pataMotion('WEEK', dayOfWeekStr);
         }
 
-        // --- 操作系 ---
-        document.getElementById('spot-play').addEventListener('click', () => {
-            if (playlist.length === 0) return document.getElementById('hidden-file').click();
-            if (layerMenu.style.display !== 'none') return showPlayer();
-            audio.paused ? audio.play() : audio.pause();
+        const prevH0 = document.getElementsByClassName('H0 top under')[0].children[0].innerHTML;
+        if(h0 != prevH0){
+            pataMotion('H0', h0);
+        }
+
+        const prevM0 = document.getElementsByClassName('M0 top under')[0].children[0].innerHTML;
+        if(m0 != prevM0){
+            pataMotion('M0', m0);
+        }
+
+        const prevS1 = document.getElementsByClassName('S1 top under')[0].children[0].innerHTML;
+        const prevS2 = document.getElementsByClassName('S2 top under')[0].children[0].innerHTML;
+        if(s1 != prevS1){
+            pataMotion('S1', s1);
+        }
+        if(s2 != prevS2){
+            pataMotion('S2', s2);
+        }
+
+    }
+
+
+    function pataMotion(_objClass, _txt){
+
+            document.getElementsByClassName( _objClass + ' top under')[0].children[0].innerHTML = _txt;
+            document.getElementsByClassName( _objClass + ' bottom over')[0].children[0].innerHTML = _txt;
+            
+            const topOvElem = document.getElementsByClassName( _objClass + ' top over')[0];
+            topOvElem.classList.add('motion_top');
+            topOvElem.addEventListener('animationend', function(e){
+                const topUnderElem =  document.getElementsByClassName( _objClass + ' top under')[0];
+                this.children[0].innerHTML = topUnderElem.children[0].innerHTML;
+                topUnderElem.classList.remove('under');
+                topUnderElem.classList.add('over');
+                this.classList.remove('over');
+                this.classList.add('under');
+                this.classList.remove('motion_top');
+
+                e.currentTarget.removeEventListener('animationend', arguments.callee, false);
+            });
+
+            const bottomOvElem  = document.getElementsByClassName( _objClass + ' bottom over')[0];
+            bottomOvElem.classList.add('motion_bottom');
+            document.getElementsByClassName( _objClass + ' bottom under')[0].classList.add('shadow');
+            bottomOvElem.addEventListener('animationend', function(e){
+                const bottomUnderElem =  document.getElementsByClassName( _objClass + ' bottom under')[0];
+                bottomUnderElem.children[0].innerHTML = this.children[0].innerHTML;
+                bottomUnderElem.classList.remove('under');
+                bottomUnderElem.classList.add('over');
+                bottomUnderElem.classList.remove('shadow');
+                this.classList.remove('over');
+                this.classList.add('under');
+                this.classList.remove('motion_bottom');
+
+                e.currentTarget.removeEventListener('animationend', arguments.callee, false);
+            });
+
+    }
+
+
+    function initialTimer(){
+        let s = new Date().getSeconds();
+        if(s%10 == 0){
+            clearInterval(timer01);
+            clearInterval(timer02);
+            setInterval(pataTimer, 1000)
+        }
+    }
+    const timer01 = setInterval(pataTimer, 1000);
+    const timer02 = setInterval(initialTimer, 1000);
+
+
+    /* ---------------------------------- */
+    /* 追加機能①: バッテリー容量の取得と表示 */
+    /* ---------------------------------- */
+    function updateBatteryStatus(battery) {
+        const level = Math.floor(battery.level * 100);
+        const charging = battery.charging ? " ⚡ (Charging)" : "";
+        document.getElementById('battery-info').innerHTML = `🔋 ${level}%${charging}`;
+    }
+
+    if (navigator.getBattery) {
+        navigator.getBattery().then(function(battery) {
+            updateBatteryStatus(battery);
+            // バッテリー残量や充電状態が変わった時に自動更新
+            battery.addEventListener('levelchange', function() { updateBatteryStatus(battery); });
+            battery.addEventListener('chargingchange', function() { updateBatteryStatus(battery); });
         });
+    } else {
+        // 非対応ブラウザの場合は非表示にする
+        document.getElementById('battery-info').style.display = 'none';
+    }
 
-        document.getElementById('spot-back').addEventListener('click', showMenu);
 
-// OPTIONボタンを押した時の処理
-document.getElementById('spot-option').addEventListener('click', () => {
-    alert("NoSony NoLife\n制作:Paa(Twi @_TOUKETUSINAIDE)");
-});
-
-        document.getElementById('spot-left').addEventListener('click', () => {
-            if (layerPlayer.style.display === 'block') {
-                currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-                playTrack(currentIndex);
+    /* ---------------------------------- */
+    /* 追加機能②: 画面タップでフルスクリーン切り替え */
+    /* ---------------------------------- */
+    document.body.addEventListener('click', function() {
+        if (!document.fullscreenElement &&    // 標準的なブラウザ
+            !document.webkitFullscreenElement) { // iOS Safari / 旧Chrome等用
+            
+            // フルスクリーンにする処理
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
             }
-        });
-
-        document.getElementById('spot-right').addEventListener('click', () => {
-            if (layerPlayer.style.display === 'block') {
-                currentIndex = (currentIndex + 1) % playlist.length;
-                playTrack(currentIndex);
+        } else {
+            // フルスクリーンを解除する処理
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
             }
-        });
+        }
+    });
 
-        document.getElementById('hidden-file').addEventListener('change', (e) => {
-            playlist = Array.from(e.target.files).filter(f => f.name.match(/\.(mp3|m4a|aac)$/i));
-            if (playlist.length > 0) { currentIndex = 0; showPlayer(); playTrack(0); }
-        });
+</script>
 
-        audio.onended = () => {
-            currentIndex = (currentIndex + 1) % playlist.length;
-            playTrack(currentIndex);
-        };
-    </script>
 </body>
 </html>
