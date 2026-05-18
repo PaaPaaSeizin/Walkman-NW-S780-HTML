@@ -3,16 +3,12 @@
 <head>
 <meta charset="utf-8"/>
 <!-- 【重要】スマートフォンの画面に最適化させる基本設定 -->
-
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 
 <!-- ───【追加】iPhone（iOS）用のアプリ化・ホーム画面追加設定 ─── -->
-<!-- ホーム画面から起動した際に、Safariのブラウザ枠（アドレスバーや下部メニュー）を非表示にしてフルスクリーンにする -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- フルスクリーン時のステータスバー（電波やバッテリーの表示部分）の背景色を黒にする -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- アプリとしてのタイトル（ホーム画面のアイコン下に表示される名前） -->
 <meta name="apple-mobile-web-app-title" content="パタパタ時計">
-<!-- ホーム画面に配置されるアイコン画像（高解像度用の180x180ピクセル推奨） -->
 <link rel="apple-touch-icon" href="https://via.placeholder.com/180">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,19 +20,21 @@
   /* 数字の色（白） */
   --clock-txt-color: #FFF;
 
-  /* 背景の角丸四角の塗り色 */
+  /* 背景の角丸四角 of 時計の塗り色 */
   --clock-wraper-bg: rgba(30, 30, 30, 0.85);
 
   --blend-layer: none;
   --clock-wraper-img: none;
 
-  /* 全体のサイズ調整 */
+  /* 個別のサイズ設定（元コードのなごり・1.0のままでOK） */
   --clock-size: 1.0;
 
-  /* ─── ここから下を付け足しました ─── */
-  --total-scale: 2.20;   /* 全体の大きさ（小さすぎたので1.20＝120%に拡大しています。1.15〜1.3などお好みで） */
-  --move-x: 0px;         /* 左右の位置調整（基本は0pxでOKです） */
-  --move-y: 35px;        /* 上下の位置調整（上すぎるのを直すために25pxほど下に下げています） */
+  /* ──────────────────────────────────────────────────────────
+     【復活】全体をドカンとズームして位置を変えるツマミ
+     ────────────────────────────────────────────────────────── */
+  --total-scale: 1.55;   /* 👈 ここで画面いっぱいにズームさせます（1.4〜1.7でお好みに調整してください） */
+  --move-x: 0px;        
+  --move-y: 0px;         /* 👈 上下位置の微調整用（まずは0pxでど真ん中に来ます） */
 }
 
 #blend-layer{
@@ -57,7 +55,7 @@ html,body,div,p,span,time{
     user-select: none;
 }
 
-/* 背景を黒にし、16:9画面の上下左右中央に配置する設定 */
+/* 背景を黒にし、画面の上下左右の完全中央に配置する */
 body {
     background-color: #000000;
     font-family: 'Oswald', sans-serif;
@@ -70,19 +68,20 @@ body {
     overflow: hidden;
 }
 
-/* 16:9の画面いっぱいに広がるコンテナ */
+/* 【修正】iPhone 6s（16:9）のフルスクリーン時にジャストフィットするコンテナサイズに修正 */
 .screen-container {
     width: 100vw;
-    height: 74.25vw; /* 16:9 の比率を維持 */
-    max-height: 190vh;
-    max-width: 290.78vh; 
+    height: 56.25vw; /* 16:9 の比率 */
+    max-height: 100vh;
+    max-width: 177.78vh; 
     display: flex;
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
+    position: relative;
 }
 
-/* 時計と天気エリアを縦に並べるコンテナ */
+/* 【重要・修正】ここにズーム命令をしっかりと組み込みました */
 .main-content {
     display: flex;
     flex-direction: column;
@@ -90,7 +89,11 @@ body {
     justify-content: center;
     width: auto; 
     white-space: nowrap;
-    gap: 3vw;   /* 1本化に伴い、バランスを取るため少し広げました */
+    gap: 2.5vw;   /* 時計と天気の間のスキマを少し引き締め */
+    
+    /* ─── 抜けていたズーム命令を追加 ─── */
+    transform: scale(var(--total-scale)) translate(var(--move-x), var(--move-y));
+    transform-origin: center center; /* つねに画面中央を基準に拡大する */
 }
 
 /* 時計全体のラップ */
@@ -120,16 +123,13 @@ body {
     width: 100%;
 }
 
-/* 【修正】週間予報ウィジェットが横いっぱいに綺麗に広がるように幅を調整 */
+/* 週間予報ウィジェットの横幅をすっきり最適化 */
 .widget-left {
-    width: 90vw;        
-    max-width: 600px;   /* 大きな画面で見たときに広がりすぎないストッパー */
+    width: 85vw;        
+    max-width: 550px;   
     display: flex;
     justify-content: center;
     align-items: center; 
-  /* ─── ここを追加 ─── */
-    transform: scale(0.99);       /* 全体を85%の大きさに縮小 */
-    transform-origin: center top; /* 上部中央を基準に縮小（上下の余白を綺麗に保つため） */
 }
 
 .separator{
