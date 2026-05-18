@@ -2,20 +2,24 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=no">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght=500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
 <style>
+
 :root {
+  /* 数字の色（白） */
   --clock-txt-color: #FFF;
-  --clock-wraper-bg: rgba(65, 65, 65, 0.86);
+
+  /* 背景の角丸四角の塗り色 */
+  --clock-wraper-bg: rgba(30, 30, 30, 0.85);
+
   --blend-layer: none;
   --clock-wraper-img: none;
-  --clock-size: 1.2; /* 天気エリアを入れるため1.2に微調整 */
+
+  /* 全体のサイズ調整 */
+  --clock-size: 1.0;
 }
 
 #blend-layer{
@@ -35,18 +39,43 @@ html,body,div,p,span,time{
     box-sizing: border-box;
     user-select: none;
 }
-body{
+
+/* 背景を黒にし、16:9画面の上下左右中央に配置する設定 */
+body {
     background-color: #000000;
-    text-align: center;
     font-family: 'Oswald', sans-serif;
-    min-height: 100vh;
+    text-align: center;
+    width: 100vw;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    color: #FFF;
 }
+
+/* 16:9の画面いっぱいに広がるコンテナ */
+.screen-container {
+    width: 100vw;
+    height: 56.25vw; /* 16:9 の比率を維持 */
+    max-height: 100vh;
+    max-width: 177.78vh; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+/* ──【追加】時計と天気エリアを縦に並べるコンテナ ── */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 95%; /* 画面幅いっぱいに使うよう広めに確保 */
+    gap: 3vw;   /* 時計と天気エリアの間の隙間 */
+}
+
+/* 時計全体のラップ */
 .timewrap{
     position: relative;
     display: inline-flex;
@@ -54,34 +83,61 @@ body{
     align-items: center;
     justify-content: center;
     width: auto;
-    height: 102px;
+    height: 14vw; 
     background-color: var(--clock-wraper-bg);
     background-image: var(--clock-wraper-img);
-    border-radius: 10px;
-    margin: 0 auto 20px auto;
-    padding: 0 9px;
+    border-radius: 1.5vw;
+    padding: 0 1.5vw;
     overflow: hidden;
     zoom: var(--clock-size);
+    box-shadow: 0 0 20px rgba(255,255,255,0.05);
 }
 
-.separator{ width: 16px; }
-.separator.short{ width: 4px; }
+/* ──【追加】天気ウィジェットを左右に並べるコンテナ ── */
+.weather-row-container {
+    display: flex;
+    flex-direction: row; /* 左右に並べる */
+    justify-content: center;
+    align-items: flex-start; /* 上揃え */
+    width: 100%;
+    gap: 3vw; /* 左ウィジェットと右ウィジェットの間の隙間 */
+}
+
+/* ──【追加】各ウィジェットの横幅を固定・制限する枠 ── */
+.widget-left {
+    width: 32vw; /* 左側のコンパクトな横型ウィジェットに合わせた幅 */
+}
+
+.widget-right {
+    flex: 1; /* 右側のレスポンシブな週間予報を広げる */
+    max-width: 55vw; /* はみ出し防止の最大幅制限 */
+}
+
+.separator{
+    width: 2.5vw;
+}
+.separator.short{
+    width: 0.6vw;
+}
 
 .clock_wrap{
     box-sizing: border-box;
     position: relative;
-    width: 59px;
-    height: 82px;
+    width: 8vw;
+    height: 11vw;
     background-color: #090909;
-    border: 5px solid #333;
-    border-radius: 10px;
-    margin: 0 1px;
+    border: 0.6vw solid #222;
+    border-radius: 1.2vw;
+    margin: 0 0.2vw;
+    perspective: 400px;
 }
+
 .clock_wrap.double-digit{
-    width: 91px;
-    text-indent: 3.5px;
-    letter-spacing: 4px;
+    width: 13vw;
+    text-indent: 0.5vw;
+    letter-spacing: 0.5vw;
 }
+
 .clock_wrap > div{
     position: absolute;
     width: 100%;
@@ -89,292 +145,376 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 60px;
+    font-size: 8.5vw;
     line-height: 0;
-    box-shadow: 0 2px 3px rgba(60, 60, 60, 0.75);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
     transition: background-color .21s ease-out;
 }
-.clock_wrap > div > span{ color: var(--clock-txt-color); }
-.clock_wrap::after, .clock_wrap::before{
+
+.clock_wrap > div > span{
+    color: var(--clock-txt-color);
+}
+
+.clock_wrap::after,
+.clock_wrap::before{
     content: '';
     position: absolute;
     z-index: 5;
-    width: 2px;
-    height: 14px;
-    top: calc(50% - 7px);
-    background-color: #b4b4b4;
+    width: 0.3vw;
+    height: 1.8vw;
+    top: calc(50% - 0.9vw);
+    background-color: #888;
 }
-.clock_wrap::after{ left: -2px; }
-.clock_wrap::before{ right: -2px; }
-
-.top{ border-top-left-radius: 6px; border-top-right-radius: 6px; }
-.bottom{ border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; }
-
-.top.over{ background-color: #484848; color: #FFF; height: calc(50% - 1px); bottom: calc(50% + 1px); z-index: 3; }
-.top.under{ background-color: #313131; color: #FFF; height: calc(50% - 1px); bottom: calc(50% + 1px); z-index: 2; }
-.bottom.over{ background-color: #484848; color: #FFF; height: 0; top: calc(50% + 1px); z-index: 5; }
-.bottom.under{ background-color: #484848; color: #FFF; height: calc(50% - 1px); top: calc(50% + 1px); z-index: 4; }
-.bottom.shadow{ transition-delay: 0.23s; background-color: rgb(36, 36, 36); }
-.top span{ transform: translateY(16.0px); }
-.bottom span{ transform: translateY(-20.5px); }
-
-@keyframes motionTop{ 0%{ height: calc(50% - 1.5px); } 100%{ height: 0; } }
-.motion_top{ animation: motionTop .24s ease-in; animation-fill-mode: both; }
-@keyframes motionBottom{ 0%{ height: 0; } 100%{ height: calc(50% - 1.5px); } }
-.motion_bottom{ animation: motionBottom .24s ease-out .23s; animation-fill-mode: both; }
-
-.date_wrap{ display: inline-flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 10px 0; }
-.date_wrap .clock_wrap{ width: 70px; height: 38px; border-radius: 8px; border-width: 4px; }
-.date_wrap .clock_wrap::after, .date_wrap .clock_wrap::before{ width: 2px; height: 10px; top: calc(50% - 5px); }
-.date_wrap .clock_wrap::after{ left: -2px; }
-.date_wrap .clock_wrap::before{ right: -2px; }
-.date_wrap .clock_wrap .top{ border-top-left-radius: 4px; border-top-right-radius: 4px; }
-.date_wrap .clock_wrap .bottom{ border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
-.date_wrap .clock_wrap > div{ font-size: 22px; }
-.date_wrap .clock_wrap > .top span{ transform: translateY(7.0px); }
-.date_wrap .clock_wrap > .bottom span{ transform: translateY(-8.0px); }
-.date_wrap .clock_wrap > .top.over{ height: calc(50% - 0.5px); bottom: calc(50% + 0.5px); }
-.date_wrap .clock_wrap > .top.under{ height: calc(50% - 0.5px); bottom: calc(50% + 0.5px); }
-.date_wrap .clock_wrap > .bottom.over{ height: 0; top: calc(50% + 0.5px); }
-.date_wrap .clock_wrap > .bottom.under{ height: calc(50% - 0.5px); top: calc(50% + 0.5px); }
-
-/* ---------------------------------- */
-/* ↓追加：天気予報表示エリアのスタイル↓ */
-/* ---------------------------------- */
-.weather-container {
-    width: 90%;
-    max-width: 460px;
-    font-family: sans-serif;
-    background: rgba(30, 30, 30, 0.6);
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #222;
+.clock_wrap::after{
+    left: -0.3vw;
 }
-.weather-title {
-    font-size: 11px;
-    color: #888;
-    text-align: left;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
+.clock_wrap::before{
+    right: -0.3vw;
 }
-.weather-row {
-    display: flex;
+
+.top{
+    border-top-left-radius: 0.8vw;
+    border-top-right-radius: 0.8vw;
+    transform-origin: center bottom;
+}
+.bottom{
+    border-bottom-left-radius: 0.8vw;
+    border-bottom-right-radius: 0.8vw;
+    transform-origin: center top;
+}
+
+.top.over{
+    background-image: linear-gradient(to bottom, #3a3a3a 0%, #484848 100%);
+    color: #FFF;
+    height: calc(50% - 1px);
+    bottom: calc(50% + 1px);
+    z-index: 3;
+}
+.top.under{
+    background-image: linear-gradient(to bottom, #1c1c1c 0%, #252525 100%);
+    color: #FFF;
+    height: calc(50% - 1px);
+    bottom: calc(50% + 1px);
+    z-index: 2;
+}
+.bottom.over{
+    background-image: linear-gradient(to bottom, #484848 0%, #353535 100%);
+    color: #FFF;
+    height: 0;
+    top: calc(50% + 1px);
+    z-index: 5;
+}
+.bottom.under{
+    background-image: linear-gradient(to bottom, #484848 0%, #353535 100%);
+    color: #FFF;
+    height: calc(50% - 1px);
+    top: calc(50% + 1px);
+    z-index: 4;
+}
+.bottom.shadow{
+    transition-delay: 0.23s;
+    background-color: rgb(20, 20, 20);
+}
+.top span{
+    transform: translateY(2.2vw);    
+}
+.bottom span{
+    transform: translateY(-2.9vw);    
+}
+
+@keyframes motionTop{
+    0%{
+        transform: rotateX(0deg);
+        height: calc(50% - 1.5px);
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(0.4);
+    }
+    100%{
+        transform: rotateX(-90deg);
+        height: 0;
+        filter: brightness(0);
+    }
+}
+.motion_top{
+    animation: motionTop .24s ease-in;
+    animation-fill-mode: both;
+}
+
+@keyframes motionBottom{
+    0%{
+        transform: rotateX(90deg);
+        height: 0;
+        filter: brightness(0);
+    }
+    40% {
+        filter: brightness(0.3);
+    }
+    100%{
+        transform: rotateX(0deg);
+        height: calc(50% - 1.5px);
+        filter: brightness(1);
+    }
+}
+.motion_bottom{
+    animation: motionBottom .24s ease-out .23s;
+    animation-fill-mode: both;
+}
+
+@keyframes shadowFade{
+    0% { background-color: rgba(0, 0, 0, 0.8); }
+    70% { background-color: rgba(0, 0, 0, 0.8); }
+    100% { background-color: rgba(0, 0, 0, 0); }
+}
+.bottom.shadow{
+    transition: none;
+    animation: shadowFade .47s linear both;
+}
+
+.date_wrap{
+    display: inline-flex;
+    flex-direction: column;
     justify-content: space-between;
-    margin-bottom: 12px;
+    height: 100%;
+    padding: 1.5vw 0;
 }
-.weather-item {
-    flex: 1;
-    text-align: center;
-    font-size: 11px;
-    color: #ccc;
+.date_wrap .clock_wrap{
+    width: 10vw;
+    height: 5.2vw;
+    border-radius: 1vw;
+    border-width: 0.5vw;
 }
-.weather-item .time-label, .weather-item .date-label {
-    color: #888;
-    margin-bottom: 2px;
+
+.date_wrap .clock_wrap::after,
+.date_wrap .clock_wrap::before{
+    width: 0.3vw;
+    height: 1.2vw;
+    top: calc(50% - 0.6vw);
 }
-.weather-item .icon {
-    font-size: 18px;
-    margin: 3px 0;
+.date_wrap .clock_wrap::after{
+    left: -0.4vw;
 }
-.weather-item .temp {
-    font-weight: bold;
-    color: #fff;
+.date_wrap .clock_wrap::before{
+    right: -0.4vw;
 }
-.divider {
-    border-top: 1px solid #222;
-    margin: 6px 0;
+
+.date_wrap .clock_wrap .top{
+    border-top-left-radius: 0.6vw;
+    border-top-right-radius: 0.6vw;
 }
+.date_wrap .clock_wrap .bottom{
+    border-bottom-left-radius: 0.6vw;
+    border-bottom-right-radius: 0.6vw;
+}
+
+.date_wrap .clock_wrap > div{
+    font-size: 3.2vw;
+}
+.date_wrap .clock_wrap > .top span{
+    transform: translateY(0.9vw);    
+}
+.date_wrap .clock_wrap > .bottom span{
+    transform: translateY(-1.1vw);    
+}
+
+.date_wrap .clock_wrap > .top.over{
+    height: calc(50% - 0.5px);
+    bottom: calc(50% + 0.5px);
+}
+.date_wrap .clock_wrap > .top.under{
+    height: calc(50% - 0.5px);
+    bottom: calc(50% + 0.5px);
+}
+.date_wrap .clock_wrap > .bottom.over{
+    height: 0;
+    top: calc(50% + 0.5px);
+}
+.date_wrap .clock_wrap > .bottom.under{
+    height: calc(50% - 0.5px);
+    top: calc(50% + 0.5px);
+}
+
 </style>
 </head>
+    
 <body>
 
-<div class="timewrap">
-    <div id="blend-layer"></div>
-    <div class="date_wrap">
-        <div class="clock_wrap">
-            <div class="DATE top over"><span>0/00</span></div>
-            <div class="DATE bottom over"><span>0/00</span></div>
-            <div class="DATE top under"><span>0/00</span></div>
-            <div class="DATE bottom under"><span>0/00</span></div>
-        </div>
-        <div class="clock_wrap">
-            <div class="WEEK top over"><span>SUN</span></div>
-            <div class="WEEK bottom over"><span>SUN</span></div>
-            <div class="WEEK top under"><span>SUN</span></div>
-            <div class="WEEK bottom under"><span>SUN</span></div>
-        </div>    
-    </div>
-    <div class="separator"></div>
-    <div class="clock_wrap double-digit">
-        <div class="H0 top over"><span>00</span></div>
-        <div class="H0 bottom over"><span>00</span></div>
-        <div class="H0 top under"><span>00</span></div>
-        <div class="H0 bottom under"><span>00</span></div>
-    </div>
-    <div class="separator short"></div>
-    <div class="clock_wrap double-digit">
-        <div class="M0 top over"><span>00</span></div>
-        <div class="M0 bottom over"><span>00</span></div>
-        <div class="M0 top under"><span>00</span></div>
-        <div class="M0 bottom under"><span>00</span></div>
-    </div>
-    <div class="separator"></div>
-    <div class="clock_wrap">
-        <div class="S1 top over"><span>0</span></div>
-        <div class="S1 bottom over"><span>0</span></div>
-        <div class="S1 top under"><span>0</span></div>
-        <div class="S1 bottom under"><span>0</span></div>
-    </div>
-    <div class="clock_wrap">
-        <div class="S2 top over"><span>0</span></div>
-        <div class="S2 bottom over"><span>0</span></div>
-        <div class="S2 top under"><span>0</span></div>
-        <div class="S2 bottom under"><span>0</span></div>
-    </div>
-</div>
+<div class="screen-container">
+    <!-- 時計と天気ウィジェット全体を包むコンテナ -->
+    <div class="main-content">
+        
+        <!-- パタパタ時計 -->
+        <div class="timewrap">
+            <div id="blend-layer"></div>
 
-<div class="weather-container">
-    <div class="weather-title">SAMUKAWA - TODAY (3-HOURLY)</div>
-    <div class="weather-row" id="today-weather">
+            <div class="date_wrap">
+                <div class="clock_wrap">
+                    <div class="DATE top over"><span>0/00</span></div>
+                    <div class="DATE bottom over"><span>0/00</span></div>
+                    <div class="DATE top under"><span>0/00</span></div>
+                    <div class="DATE bottom under"><span>0/00</span></div>
+                </div>
+            
+                <div class="clock_wrap">
+                    <div class="WEEK top over"><span>SUN</span></div>
+                    <div class="WEEK bottom over"><span>SUN</span></div>
+                    <div class="WEEK top under"><span>SUN</span></div>
+                    <div class="WEEK bottom under"><span>SUN</span></div>
+                </div>    
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="clock_wrap double-digit">
+                <div class="H0 top over"><span>00</span></div>
+                <div class="H0 bottom over"><span>00</span></div>
+                <div class="H0 top under"><span>00</span></div>
+                <div class="H0 bottom under"><span>00</span></div>
+            </div>
+
+            <div class="separator short"></div>
+
+            <div class="clock_wrap double-digit">
+                <div class="M0 top over"><span>00</span></div>
+                <div class="M0 bottom over"><span>00</span></div>
+                <div class="M0 top under"><span>00</span></div>
+                <div class="M0 bottom under"><span>00</span></div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="clock_wrap">
+                <div class="S1 top over"><span>0</span></div>
+                <div class="S1 bottom over"><span>0</span></div>
+                <div class="S1 top under"><span>0</span></div>
+                <div class="S1 bottom under"><span>0</span></div>
+            </div>
+
+            <div class="clock_wrap">
+                <div class="S2 top over"><span>0</span></div>
+                <div class="S2 bottom over"><span>0</span></div>
+                <div class="S2 top under"><span>0</span></div>
+                <div class="S2 bottom under"><span>0</span></div>
+            </div>
         </div>
-    <div class="divider"></div>
-    <div class="weather-title">SAMUKAWA - 1 WEEK FORECAST</div>
-    <div class="weather-row" id="weekly-weather">
+
+        <!-- 天気ウィジェットエリア（左右に整列） -->
+        <div class="weather-row-container">
+            
+            <!-- 【左側】最初のウィジェット (horizontal) -->
+            <div class="widget-left">
+                <div id="ww_49b870d903f42" v='1.3' loc='id' a='{"t":"horizontal","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_49b870d903f42_u" target="_blank">東京 天気 10日間</a></div>
+                <script async src="https://app3.weatherwidget.org/js/?id=ww_49b870d903f42"></script>
+            </div>
+
+            <!-- 【右側】2つ目のウィジェット (responsive) -->
+            <div class="widget-right">
+                <div id="ww_4bab25dd80486" v='1.3' loc='id' a='{"t":"responsive","lang":"ja","sl_lpl":1,"ids":["wl6910"],"font":"Arial","sl_ics":"one_a","sl_sot":"celsius","cl_bkg":"#000000","cl_font":"#FFFFFF","cl_cloud":"#FFFFFF","cl_persp":"#81D4FA","cl_sun":"#FFC107","cl_moon":"#FFC107","cl_thund":"#FF5722","el_nme":3,"el_cwi":3,"el_ctm":3,"cl_odd":"#FFFFFF17"}'>More forecasts: <a href="https://oneweather.org/ja/tokyo/10_days/" id="ww_4bab25dd80486_u" target="_blank">東京 天気 10日間</a></div>
+                <script async src="https://app3.weatherwidget.org/js/?id=ww_4bab25dd80486"></script>
+            </div>
+
         </div>
+
+    </div>
 </div>
 
 <script>
-    // --- 時計用スクリプト (そのまま保持) ---
     function pataTimer(){
         const d = new Date();
-        let H = d.getHours(); if(H<10) { H = '0'+H }; const h0 = String(H).substr(0,2);
-        let m = d.getMinutes(); if(m<10) { m = '0'+m }; const m0 = String(m).substr(0,2);
-        let s = d.getSeconds(); if(s<10) { s = '0'+s }; const s1 = String(s).substr(0,1); const s2 = String(s).substr(1,1);
-        const month = d.getMonth()+1; const date = d.getDate(); const dateStr = month + '/' + date;
+
+        let H = d.getHours();
+        if(H<10) { H = '0'+H };
+        const h0 = String(H).substr(0,2);
+        
+        let m = d.getMinutes();
+        if(m<10) { m = '0'+m };
+        const m0 = String(m).substr(0,2);
+                
+        let s = d.getSeconds();
+        if(s<10) { s = '0'+s };
+        const s1 = String(s).substr(0,1);
+        const s2 = String(s).substr(1,1);
+
+        const month = d.getMonth()+1;
+        const date = d.getDate();
+        const dateStr = month + '/' + date;
         const dayOfWeekStr = [ "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT" ][d.getDay()];
 
         const prevDATE = document.getElementsByClassName('DATE top under')[0].children[0].innerHTML;
         const prevWEEK = document.getElementsByClassName('WEEK top under')[0].children[0].innerHTML;
-        if(dateStr != prevDATE){ pataMotion('DATE', dateStr); }
-        if(dayOfWeekStr != prevWEEK){ pataMotion('WEEK', dayOfWeekStr); }
+        if(dateStr != prevDATE){
+            pataMotion('DATE', dateStr);
+        }
+        if(dayOfWeekStr != prevWEEK){
+            pataMotion('WEEK', dayOfWeekStr);
+        }
 
         const prevH0 = document.getElementsByClassName('H0 top under')[0].children[0].innerHTML;
-        if(h0 != prevH0){ pataMotion('H0', h0); }
+        if(h0 != prevH0){
+            pataMotion('H0', h0);
+        }
+
         const prevM0 = document.getElementsByClassName('M0 top under')[0].children[0].innerHTML;
-        if(m0 != prevM0){ pataMotion('M0', m0); }
+        if(m0 != prevM0){
+            pataMotion('M0', m0);
+        }
+
         const prevS1 = document.getElementsByClassName('S1 top under')[0].children[0].innerHTML;
         const prevS2 = document.getElementsByClassName('S2 top under')[0].children[0].innerHTML;
-        if(s1 != prevS1){ pataMotion('S1', s1); }
-        if(s2 != prevS2){ pataMotion('S2', s2); }
+        if(s1 != prevS1){
+            pataMotion('S1', s1);
+        }
+        if(s2 != prevS2){
+            pataMotion('S2', s2);
+        }
     }
 
     function pataMotion(_objClass, _txt){
-        document.getElementsByClassName( _objClass + ' top under')[0].children[0].innerHTML = _txt;
-        document.getElementsByClassName( _objClass + ' bottom over')[0].children[0].innerHTML = _txt;
-        
-        const topOvElem = document.getElementsByClassName( _objClass + ' top over')[0];
-        topOvElem.classList.add('motion_top');
-        topOvElem.addEventListener('animationend', function(e){
-            const topUnderElem =  document.getElementsByClassName( _objClass + ' top under')[0];
-            this.children[0].innerHTML = topUnderElem.children[0].innerHTML;
-            topUnderElem.classList.remove('under'); topUnderElem.classList.add('over');
-            this.classList.remove('over'); this.classList.add('under'); this.classList.remove('motion_top');
-            e.currentTarget.removeEventListener('animationend', arguments.callee, false);
-        });
+            document.getElementsByClassName( _objClass + ' top under')[0].children[0].innerHTML = _txt;
+            document.getElementsByClassName( _objClass + ' bottom over')[0].children[0].innerHTML = _txt;
+            
+            const topOvElem = document.getElementsByClassName( _objClass + ' top over')[0];
+            topOvElem.classList.add('motion_top');
+            topOvElem.addEventListener('animationend', function(e){
+                const topUnderElem =  document.getElementsByClassName( _objClass + ' top under')[0];
+                this.children[0].innerHTML = topUnderElem.children[0].innerHTML;
+                topUnderElem.classList.remove('under');
+                topUnderElem.classList.add('over');
+                this.classList.remove('over');
+                this.classList.add('under');
+                this.classList.remove('motion_top');
 
-        const bottomOvElem  = document.getElementsByClassName( _objClass + ' bottom over')[0];
-        bottomOvElem.classList.add('motion_bottom');
-        document.getElementsByClassName( _objClass + ' bottom under')[0].classList.add('shadow');
-        bottomOvElem.addEventListener('animationend', function(e){
-            const bottomUnderElem =  document.getElementsByClassName( _objClass + ' bottom under')[0];
-            bottomUnderElem.children[0].innerHTML = this.children[0].innerHTML;
-            bottomUnderElem.classList.remove('under'); bottomUnderElem.classList.add('over');
-            bottomUnderElem.classList.remove('shadow');
-            this.classList.remove('over'); this.classList.add('under'); this.classList.remove('motion_bottom');
-            e.currentTarget.removeEventListener('animationend', arguments.callee, false);
-        });
+                e.currentTarget.removeEventListener('animationend', arguments.callee, false);
+            });
+
+            const bottomOvElem  = document.getElementsByClassName( _objClass + ' bottom over')[0];
+            bottomOvElem.classList.add('motion_bottom');
+            document.getElementsByClassName( _objClass + ' bottom under')[0].classList.add('shadow');
+            bottomOvElem.addEventListener('animationend', function(e){
+                const bottomUnderElem =  document.getElementsByClassName( _objClass + ' bottom under')[0];
+                bottomUnderElem.children[0].innerHTML = this.children[0].innerHTML;
+                bottomUnderElem.classList.remove('under');
+                bottomUnderElem.classList.add('over');
+                bottomUnderElem.classList.remove('shadow');
+                this.classList.remove('over');
+                this.classList.add('under');
+                this.classList.remove('motion_bottom');
+
+                e.currentTarget.removeEventListener('animationend', arguments.callee, false);
+            });
     }
 
     function initialTimer(){
         let s = new Date().getSeconds();
-        if(s%10 == 0){ clearInterval(timer01); clearInterval(timer02); setInterval(pataTimer, 1000) }
+        if(s%10 == 0){
+            clearInterval(timer01);
+            clearInterval(timer02);
+            setInterval(pataTimer, 1000)
+        }
     }
     const timer01 = setInterval(pataTimer, 1000);
     const timer02 = setInterval(initialTimer, 1000);
-
-
-    // --- 追加：寒川町ピンポイント天気予報スクリプト ---
-    // 天気コード(WMO)を絵文字に変換するマップ
-    function getWeatherIcon(code) {
-        if ([0].includes(code)) return "☀️";
-        if ([1, 2, 3].includes(code)) return "⛅";
-        if ([45, 48].includes(code)) return "🌫️";
-        if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "☔";
-        if ([71, 73, 75, 77, 85, 86].includes(code)) return "❄️";
-        if ([95, 96, 99].includes(code)) return "⚡";
-        return "❓";
-    }
-
-    async function fetchWeather() {
-        // 寒川町の経緯度 (Lat: 35.37, Lon: 139.38) / 気象庁モデル(jma)を指定
-        const url = "https://api.open-meteo.com/v1/forecast?latitude=35.37&longitude=139.38&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo&models=jma";
-        
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            // ① 今日中の天気（現在の時間以降、3時間おきに4つ表示）
-            const currentHour = new Date().getHours();
-            let todayHtml = "";
-            let count = 0;
-            
-            for (let i = 0; i < 24; i++) {
-                const forecastTime = new Date(data.hourly.time[i]);
-                const forecastHour = forecastTime.getHours();
-                
-                if (forecastHour >= currentHour && count < 4) {
-                    const temp = Math.round(data.hourly.temperature_2m[i]);
-                    const icon = getWeatherIcon(data.hourly.weather_code[i]);
-                    todayHtml += `
-                        <div class="weather-item">
-                            <div class="time-label">${forecastHour}:00</div>
-                            <div class="icon">${icon}</div>
-                            <div class="temp">${temp}°C</div>
-                        </div>`;
-                    count++;
-                }
-            }
-            document.getElementById('today-weather').innerHTML = todayHtml;
-
-            // ② 1週間の天気予報（今日を含む5日間分を表示してコンパクトに）
-            let weeklyHtml = "";
-            const dayLabels = ["日", "月", "火", "水", "木", "金", "土"];
-            
-            for (let i = 0; i < 5; i++) {
-                const dateObj = new Date(data.daily.time[i]);
-                const dayName = dayLabels[dateObj.getDay()];
-                const dateStr = (dateObj.getMonth() + 1) + "/" + dateObj.getDate();
-                const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-                const minTemp = Math.round(data.daily.temperature_2m_min[i]);
-                const icon = getWeatherIcon(data.daily.weather_code[i]);
-                
-                weeklyHtml += `
-                    <div class="weather-item">
-                        <div class="date-label">${dateStr}(${dayName})</div>
-                        <div class="icon">${icon}</div>
-                        <div class="temp">${maxTemp}° / <span style="color:#666">${minTemp}°</span></div>
-                    </div>`;
-            }
-            document.getElementById('weekly-weather').innerHTML = weeklyHtml;
-
-        } catch (error) {
-            console.error("天気データの取得に失敗しました:", error);
-        }
-    }
-
-    // 初回読み込みと、1時間ごとの定期更新
-    fetchWeather();
-    setInterval(fetchWeather, 3600000);
 </script>
 </body>
 </html>
