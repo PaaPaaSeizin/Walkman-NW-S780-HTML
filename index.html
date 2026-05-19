@@ -2,17 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<!-- 【重要】スマートフォンの画面に最適化させる基本設定 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
 
-<!-- ───【追加】iPhone（iOS）用のアプリ化・ホーム画面追加設定 ─── -->
-<!-- ホーム画面から起動した際に、Safariのブラウザ枠（アドレスバーや下部メニュー）を非表示にしてフルスクリーンにする -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<!-- フルスクリーン時のステータスバー（電波やバッテリーの表示部分）の背景色を黒にする -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- アプリとしてのタイトル（ホーム画面のアイコン下に表示される名前） -->
 <meta name="apple-mobile-web-app-title" content="パタパタ時計">
-<!-- ホーム画面に配置されるアイコン画像（高解像度用の180x180ピクセル推奨） -->
 <link rel="apple-touch-icon" href="https://via.placeholder.com/180">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -390,7 +384,6 @@ body {
 <div class="screen-container">
     <div class="main-content">
         
-        <!-- パタパタ時計 -->
         <div class="timewrap">
             <div id="blend-layer"></div>
 
@@ -445,7 +438,6 @@ body {
             </div>
         </div>
 
-        <!-- 天気ウィジェットエリア（週間予報を1本化） -->
         <div class="weather-row-container">
             
             <div class="widget-left">
@@ -554,6 +546,29 @@ body {
     }
     const timer01 = setInterval(pataTimer, 1000);
     const timer02 = setInterval(initialTimer, 1000);
+
+    // ───【追加】天気ウィジェットを10分ごとに更新するロジック ───
+    setInterval(function() {
+        const widgetContainer = document.querySelector('.widget-left');
+        if (widgetContainer) {
+            // 現在のHTML設定（div要素）を保持
+            const originalDiv = document.getElementById('ww_4bab25dd80486');
+            if (originalDiv) {
+                // ウィジェットコンテナの中身をいったん空にする
+                widgetContainer.innerHTML = '';
+                
+                // 元のdiv要素をクローンして再配置
+                const newDiv = originalDiv.cloneNode(true);
+                widgetContainer.appendChild(newDiv);
+                
+                // スクリプトタグを新しく生成して読み込み直すことでウィジェットを強制再描画
+                const newScript = document.createElement('script');
+                newScript.async = true;
+                newScript.src = "https://app3.weatherwidget.org/js/?id=ww_4bab25dd80486";
+                widgetContainer.appendChild(newScript);
+            }
+        }
+    }, 10 * 60 * 1000); // 10分（10 × 60秒 × 1000ミリ秒）
 </script>
 </body>
 </html>
