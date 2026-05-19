@@ -11,7 +11,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght=500&display=swap" rel="stylesheet">
 <style>
 
 :root {
@@ -156,9 +156,11 @@ body {
 
 .separator{
     width: 2.5vw;
+    flex-shrink: 0;
 }
 .separator.short{
     width: 0.6vw;
+    flex-shrink: 0;
 }
 
 .clock_wrap{
@@ -171,6 +173,7 @@ body {
     border-radius: 1.2vw;
     margin: 0 0.2vw;
     perspective: 400px;
+    flex-shrink: 0;
 }
 
 .clock_wrap.double-digit{
@@ -194,6 +197,7 @@ body {
 
 .clock_wrap > div > span{
     color: var(--clock-txt-color);
+    display: block;
 }
 
 .clock_wrap::after,
@@ -241,7 +245,7 @@ body {
 .bottom.over{
     background-image: linear-gradient(to bottom, #484848 0%, #353535 100%);
     color: #FFF;
-    height: 0;
+    height: calc(50% - 1px); /* 高さが0になっても外枠が潰れないようベース高さを固定 */
     top: calc(50% + 1px);
     z-index: 5;
 }
@@ -266,7 +270,6 @@ body {
 @keyframes motionTop{
     0%{
         transform: rotateX(0deg);
-        height: calc(50% - 1.5px);
         filter: brightness(1);
     }
     50% {
@@ -274,7 +277,6 @@ body {
     }
     100%{
         transform: rotateX(-90deg);
-        height: 0;
         filter: brightness(0);
     }
 }
@@ -286,7 +288,6 @@ body {
 @keyframes motionBottom{
     0%{
         transform: rotateX(90deg);
-        height: 0;
         filter: brightness(0);
     }
     40% {
@@ -294,7 +295,6 @@ body {
     }
     100%{
         transform: rotateX(0deg);
-        height: calc(50% - 1.5px);
         filter: brightness(1);
     }
 }
@@ -319,6 +319,7 @@ body {
     justify-content: space-between;
     height: 100%;
     padding: 1.5vw 0;
+    flex-shrink: 0;
 }
 .date_wrap .clock_wrap{
     width: 10vw;
@@ -368,7 +369,7 @@ body {
     bottom: calc(50% + 0.5px);
 }
 .date_wrap .clock_wrap > .bottom.over{
-    height: 0;
+    height: calc(50% - 0.5px);
     top: calc(50% + 0.5px);
 }
 .date_wrap .clock_wrap > .bottom.under{
@@ -551,24 +552,20 @@ body {
     setInterval(function() {
         const widgetContainer = document.querySelector('.widget-left');
         if (widgetContainer) {
-            // 現在のHTML設定（div要素）を保持
             const originalDiv = document.getElementById('ww_4bab25dd80486');
             if (originalDiv) {
-                // ウィジェットコンテナの中身をいったん空にする
                 widgetContainer.innerHTML = '';
                 
-                // 元のdiv要素をクローンして再配置
                 const newDiv = originalDiv.cloneNode(true);
                 widgetContainer.appendChild(newDiv);
                 
-                // スクリプトタグを新しく生成して読み込み直すことでウィジェットを強制再描画
                 const newScript = document.createElement('script');
                 newScript.async = true;
                 newScript.src = "https://app3.weatherwidget.org/js/?id=ww_4bab25dd80486";
                 widgetContainer.appendChild(newScript);
             }
         }
-    }, 10 * 60 * 1000); // 10分（10 × 60秒 × 1000ミリ秒）
+    }, 10 * 60 * 1000);
 </script>
 </body>
 </html>
