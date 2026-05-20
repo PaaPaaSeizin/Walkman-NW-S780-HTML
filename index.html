@@ -11,7 +11,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght=500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
 <style>
 
 :root {
@@ -108,11 +108,15 @@ body {
     align-items: center;
     justify-content: center;
     width: 96%; 
-    gap: 3vw;   /* 1本化に伴い、バランスを取るため少し広げました */
+    gap: 3vw;   /* 1本化に伴い、バランスを取らため少し広げました */
     
     /* ───【修正】縦向き時の回転（rotate）を追加しました ─── */
     transform: rotate(var(--orientation-rotate)) translate(var(--move-x), var(--move-y)) scale(var(--total-scale));
     transform-origin: center center;
+    
+    /* ズレ・ボケ防止：ハードウェアアクセラレーションの有効化 */
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
 }
 
 /* 時計全体のラップ */
@@ -131,6 +135,9 @@ body {
     overflow: hidden;
     zoom: var(--clock-size);
     box-shadow: 0 0 20px rgba(255,255,255,0.05);
+    
+    /* ズレ防止 */
+    transform: translate3d(0, 0, 0);
 }
 
 /* 天気ウィジェットを配置するコンテナ */
@@ -156,11 +163,9 @@ body {
 
 .separator{
     width: 2.5vw;
-    flex-shrink: 0;
 }
 .separator.short{
     width: 0.6vw;
-    flex-shrink: 0;
 }
 
 .clock_wrap{
@@ -173,7 +178,9 @@ body {
     border-radius: 1.2vw;
     margin: 0 0.2vw;
     perspective: 400px;
-    flex-shrink: 0;
+    
+    /* ズレ防止 */
+    transform: translate3d(0, 0, 0);
 }
 
 .clock_wrap.double-digit{
@@ -190,14 +197,18 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 8.5vw;
-    line-height: 0;
+    line-height: 1; /* 0から1に変更し高さを安定化 */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
     transition: background-color .21s ease-out;
+    
+    /* アニメーション時のガタつき・ズレ防止 */
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
 }
 
 .clock_wrap > div > span{
     color: var(--clock-txt-color);
-    display: block;
+    display: inline-block;
 }
 
 .clock_wrap::after,
@@ -245,7 +256,7 @@ body {
 .bottom.over{
     background-image: linear-gradient(to bottom, #484848 0%, #353535 100%);
     color: #FFF;
-    height: calc(50% - 1px); /* 高さが0になっても外枠が潰れないようベース高さを固定 */
+    height: 0;
     top: calc(50% + 1px);
     z-index: 5;
 }
@@ -260,16 +271,19 @@ body {
     transition-delay: 0.23s;
     background-color: rgb(20, 20, 20);
 }
+
+/* 文字位置の微調整（ガタつき防止のため数値を少し最適化） */
 .top span{
-    transform: translateY(2.2vw);    
+    transform: translateY(2.5vw);    
 }
 .bottom span{
-    transform: translateY(-2.9vw);    
+    transform: translateY(-3.0vw);    
 }
 
 @keyframes motionTop{
     0%{
         transform: rotateX(0deg);
+        height: calc(50% - 1.5px);
         filter: brightness(1);
     }
     50% {
@@ -277,6 +291,7 @@ body {
     }
     100%{
         transform: rotateX(-90deg);
+        height: 0;
         filter: brightness(0);
     }
 }
@@ -288,6 +303,7 @@ body {
 @keyframes motionBottom{
     0%{
         transform: rotateX(90deg);
+        height: 0;
         filter: brightness(0);
     }
     40% {
@@ -295,6 +311,7 @@ body {
     }
     100%{
         transform: rotateX(0deg);
+        height: calc(50% - 1.5px);
         filter: brightness(1);
     }
 }
@@ -319,7 +336,6 @@ body {
     justify-content: space-between;
     height: 100%;
     padding: 1.5vw 0;
-    flex-shrink: 0;
 }
 .date_wrap .clock_wrap{
     width: 10vw;
@@ -354,10 +370,10 @@ body {
     font-size: 3.2vw;
 }
 .date_wrap .clock_wrap > .top span{
-    transform: translateY(0.9vw);    
+    transform: translateY(1.0vw);    
 }
 .date_wrap .clock_wrap > .bottom span{
-    transform: translateY(-1.1vw);    
+    transform: translateY(-1.2vw);    
 }
 
 .date_wrap .clock_wrap > .top.over{
@@ -369,7 +385,7 @@ body {
     bottom: calc(50% + 0.5px);
 }
 .date_wrap .clock_wrap > .bottom.over{
-    height: calc(50% - 0.5px);
+    height: 0;
     top: calc(50% + 0.5px);
 }
 .date_wrap .clock_wrap > .bottom.under{
@@ -508,33 +524,36 @@ body {
             
             const topOvElem = document.getElementsByClassName( _objClass + ' top over')[0];
             topOvElem.classList.add('motion_top');
-            topOvElem.addEventListener('animationend', function(e){
+            
+            // 安全なイベントリスナー解除に変更（arguments.calleeの廃止）
+            const topAnimationEnd = function(e){
                 const topUnderElem =  document.getElementsByClassName( _objClass + ' top under')[0];
-                this.children[0].innerHTML = topUnderElem.children[0].innerHTML;
+                topOvElem.children[0].innerHTML = topUnderElem.children[0].innerHTML;
                 topUnderElem.classList.remove('under');
                 topUnderElem.classList.add('over');
-                this.classList.remove('over');
-                this.classList.add('under');
-                this.classList.remove('motion_top');
-
-                e.currentTarget.removeEventListener('animationend', arguments.callee, false);
-            });
+                topOvElem.classList.remove('over');
+                topOvElem.classList.add('under');
+                topOvElem.classList.remove('motion_top');
+                topOvElem.removeEventListener('animationend', topAnimationEnd, false);
+            };
+            topOvElem.addEventListener('animationend', topAnimationEnd, false);
 
             const bottomOvElem  = document.getElementsByClassName( _objClass + ' bottom over')[0];
             bottomOvElem.classList.add('motion_bottom');
             document.getElementsByClassName( _objClass + ' bottom under')[0].classList.add('shadow');
-            bottomOvElem.addEventListener('animationend', function(e){
+            
+            const bottomAnimationEnd = function(e){
                 const bottomUnderElem =  document.getElementsByClassName( _objClass + ' bottom under')[0];
-                bottomUnderElem.children[0].innerHTML = this.children[0].innerHTML;
+                bottomUnderElem.children[0].innerHTML = bottomOvElem.children[0].innerHTML;
                 bottomUnderElem.classList.remove('under');
                 bottomUnderElem.classList.add('over');
                 bottomUnderElem.classList.remove('shadow');
-                this.classList.remove('over');
-                this.classList.add('under');
-                this.classList.remove('motion_bottom');
-
-                e.currentTarget.removeEventListener('animationend', arguments.callee, false);
-            });
+                bottomOvElem.classList.remove('over');
+                bottomOvElem.classList.add('under');
+                bottomOvElem.classList.remove('motion_bottom');
+                bottomOvElem.removeEventListener('animationend', bottomAnimationEnd, false);
+            };
+            bottomOvElem.addEventListener('animationend', bottomAnimationEnd, false);
     }
 
     function initialTimer(){
@@ -548,24 +567,11 @@ body {
     const timer01 = setInterval(pataTimer, 1000);
     const timer02 = setInterval(initialTimer, 1000);
 
-    // ───【追加】天気ウィジェットを10分ごとに更新するロジック ───
+    // ───【追加】10分ごと（600,000ミリ秒）にサイトを自動再読み込みする処理 ───
+    // ホーム画面に登録（スタンドアロンアプリ化）した状態でも正常に機能します。
     setInterval(function() {
-        const widgetContainer = document.querySelector('.widget-left');
-        if (widgetContainer) {
-            const originalDiv = document.getElementById('ww_4bab25dd80486');
-            if (originalDiv) {
-                widgetContainer.innerHTML = '';
-                
-                const newDiv = originalDiv.cloneNode(true);
-                widgetContainer.appendChild(newDiv);
-                
-                const newScript = document.createElement('script');
-                newScript.async = true;
-                newScript.src = "https://app3.weatherwidget.org/js/?id=ww_4bab25dd80486";
-                widgetContainer.appendChild(newScript);
-            }
-        }
-    }, 10 * 60 * 1000);
+        location.reload();
+    }, 600000); 
 </script>
 </body>
 </html>
